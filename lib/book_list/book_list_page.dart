@@ -1,3 +1,4 @@
+import 'package:book_lisy_sample/add_book/add_book_page.dart';
 import 'package:book_lisy_sample/book_list/book_list_model.dart';
 import 'package:book_lisy_sample/domain/book.dart';
 import 'package:flutter/material.dart';
@@ -36,11 +37,33 @@ class BookListPage extends StatelessWidget {
             children: widgets,
           );
         })),
-        floatingActionButton: FloatingActionButton(
-          onPressed: null,
-          tooltip: 'Increment',
-          child: Icon(Icons.add),
-        ),
+        // floatingActionButtonもここでConsumerで括らないと、fetchBookListがmodelを参照できない！
+        floatingActionButton: Consumer<BooKListModel>(builder: (context, model, child) {
+          return FloatingActionButton(
+            onPressed: () async {
+              final bool? added = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddBookPage(),
+                    fullscreenDialog: true,
+                  ));
+
+              //このaddedはadded == true のことを表している！！
+              if (added != null && added) {
+                final snackBar = SnackBar(
+                  backgroundColor: Colors.green,
+                  content: Text('本を追加しました'),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              }
+
+              //ここでfirestoreに登録した情報が更新処理で画面に描画されるようにする。
+              model.fetchBookList();
+            },
+            tooltip: 'Increment',
+            child: Icon(Icons.add),
+          );
+        }),
       ),
     );
   }
