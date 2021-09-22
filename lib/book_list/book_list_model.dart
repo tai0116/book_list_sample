@@ -20,10 +20,12 @@ class BooKListModel extends ChangeNotifier {
     final List<Book> books = snapshot.docs.map((DocumentSnapshot document) {
       //とりあえず右辺のdocument型のdataを左辺のstring型のdataにする（①）
       Map<String, dynamic> data = document.data() as Map<String, dynamic>; //①
+      //firebaseで勝手に生成されるidは、documentの中に入っているので、documentにドット演算子で生やすことができる。
+      final String id = document.id;
       final String title = data['title']; //②
       final String author = data['author']; //③
 
-      return Book(title, author); //←この1行にまさに集約されている！！！returnとして返したいのは、自前で用意した
+      return Book(id, title, author); //←この1行にまさに集約されている！！！returnとして返したいのは、自前で用意した
       //class Book {
       //   Book(this.title, this.author);
       //   String title;
