@@ -9,14 +9,14 @@ import 'package:provider/provider.dart';
 class BookListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<BooKListModel>(
+    return ChangeNotifierProvider<BookListModel>(
       //最後に..fetchBookList()をやらないと、本一覧を取ってこれず、永遠にグルグルマークが出てきてしまう。
-      create: (_) => (BooKListModel())..fetchBookList(),
+      create: (_) => (BookListModel())..fetchBookList(),
       child: Scaffold(
         appBar: AppBar(
           title: Text('本一覧'),
         ),
-        body: Center(child: Consumer<BooKListModel>(builder: (context, model, child) {
+        body: Center(child: Consumer<BookListModel>(builder: (context, model, child) {
           final List<Book>? books = model.books;
 
           //fetchでデータを取ってきている間、bookがnullだったら、CircularProgressIndicator();が回り
@@ -65,7 +65,9 @@ class BookListPage extends StatelessWidget {
                       caption: '削除',
                       color: Colors.red,
                       icon: Icons.delete,
-                      onTap: () {},
+                      onTap: () async {
+                        await showConfirmDialog(context, book, model);
+                      },
                     ),
                   ],
                 ),
@@ -76,7 +78,7 @@ class BookListPage extends StatelessWidget {
           );
         })),
         // floatingActionButtonもここでConsumerで括らないと、fetchBookListがmodelを参照できない！
-        floatingActionButton: Consumer<BooKListModel>(builder: (context, model, child) {
+        floatingActionButton: Consumer<BookListModel>(builder: (context, model, child) {
           return FloatingActionButton(
             onPressed: () async {
               final bool? added = await Navigator.push(
@@ -103,6 +105,45 @@ class BookListPage extends StatelessWidget {
           );
         }),
       ),
+    );
+  }
+
+  Future showConfirmDialog(
+    BuildContext context,
+    Book book,
+    BookListModel model,
+  ) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          title: Text("削除の確認"),
+          content: Text("『${book.title}』を削除しますか？"),
+          actions: [
+            TextButton(
+              child: Text("いいえ"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: Text("はい"),
+              onPressed: () async {
+                //modelで削除
+                await model.delete(book);
+                //本を削除したら、前の画面に戻る処理↓
+                Navigator.pop(context);
+                final snackBar = SnackBar(
+                  backgroundColor: Colors.red,
+                  content: Text('${book.title}を削除しました'),
+                );
+                //本を削除したら、もう一度画面を走らせる必要があるので、 model.fetchBookList();を行う。
+                model.fetchBookList();
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:book_lisy_sample/domain/book.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class BooKListModel extends ChangeNotifier {
+class BookListModel extends ChangeNotifier {
   //ここに書いておいた方が色々な場所で使い回しができるけど、下記のようにfinal QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('books').get();と書いた方がシンプル。
   //final _userCollection = FirebaseFirestore.instance.collection('books');
 
@@ -45,5 +45,9 @@ class BooKListModel extends ChangeNotifier {
     this.books = books;
     //それをQEDみたいな感じで、証明終了的な感じでnotifyListeners();してあげるとviewの方のconsumerが発火する！！
     notifyListeners();
+  }
+
+  Future delete(Book book) {
+    return FirebaseFirestore.instance.collection('books').doc(book.id).delete();
   }
 }
