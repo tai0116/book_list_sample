@@ -1,7 +1,9 @@
 import 'package:book_lisy_sample/add_book/add_book_page.dart';
 import 'package:book_lisy_sample/book_list/book_list_model.dart';
 import 'package:book_lisy_sample/domain/book.dart';
+import 'package:book_lisy_sample/edit_book/edit_book_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 class BookListPage extends StatelessWidget {
@@ -27,9 +29,45 @@ class BookListPage extends StatelessWidget {
 
           final List<Widget> widgets = books
               .map(
-                (book) => ListTile(
-                  title: Text(book.title),
-                  subtitle: Text(book.author),
+                (book) => Slidable(
+                  actionPane: SlidableDrawerActionPane(),
+                  child: ListTile(
+                    title: Text(book.title),
+                    subtitle: Text(book.author),
+                  ),
+                  secondaryActions: <Widget>[
+                    IconSlideAction(
+                      caption: '編集',
+                      color: Colors.black45,
+                      icon: Icons.more_horiz,
+                      onTap: () async {
+                        final String? title = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditBookPage(book),
+                              fullscreenDialog: true,
+                            ));
+
+                        //このaddedはadded == true のことを表している！！
+                        if (title != null) {
+                          final snackBar = SnackBar(
+                            backgroundColor: Colors.green,
+                            content: Text('$titleを編集しました'),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }
+
+                        //ここでfirestoreに登録した情報が更新処理で画面に描画されるようにする。
+                        model.fetchBookList();
+                      },
+                    ),
+                    IconSlideAction(
+                      caption: '削除',
+                      color: Colors.red,
+                      icon: Icons.delete,
+                      onTap: () {},
+                    ),
+                  ],
                 ),
               )
               .toList();
