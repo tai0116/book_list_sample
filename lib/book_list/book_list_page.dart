@@ -2,6 +2,9 @@ import 'package:book_lisy_sample/add_book/add_book_page.dart';
 import 'package:book_lisy_sample/book_list/book_list_model.dart';
 import 'package:book_lisy_sample/domain/book.dart';
 import 'package:book_lisy_sample/edit_book/edit_book_page.dart';
+import 'package:book_lisy_sample/login/login_page.dart';
+import 'package:book_lisy_sample/mypage/my_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +18,32 @@ class BookListPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('本一覧'),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                if (FirebaseAuth.instance.currentUser != null) {
+                  print('ログインしている');
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MyPage(),
+                      fullscreenDialog: true,
+                    ),
+                  );
+                } else {
+                  print('ログインしていない');
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(),
+                      fullscreenDialog: true,
+                    ),
+                  );
+                }
+              },
+              icon: Icon(Icons.person),
+            )
+          ],
         ),
         body: Center(child: Consumer<BookListModel>(builder: (context, model, child) {
           final List<Book>? books = model.books;
@@ -32,6 +61,7 @@ class BookListPage extends StatelessWidget {
                 (book) => Slidable(
                   actionPane: SlidableDrawerActionPane(),
                   child: ListTile(
+                    leading: book.imgURL != null ? Image.network(book.imgURL!) : null,
                     title: Text(book.title),
                     subtitle: Text(book.author),
                   ),

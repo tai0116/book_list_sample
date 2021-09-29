@@ -24,8 +24,8 @@ class BookListModel extends ChangeNotifier {
       final String id = document.id;
       final String title = data['title']; //②
       final String author = data['author']; //③
-
-      return Book(id, title, author); //←この1行にまさに集約されている！！！returnとして返したいのは、自前で用意した
+      final String? imgURL = data['imgURL'];
+      return Book(id, title, author, imgURL); //←この1行にまさに集約されている！！！returnとして返したいのは、自前で用意した
       //class Book {
       //   Book(this.title, this.author);
       //   String title;
