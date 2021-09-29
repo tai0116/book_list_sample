@@ -42,6 +42,7 @@ class LoginPage extends StatelessWidget {
                           model.setPassword(text);
                           //ここで取得したtextを使う
                         },
+                        obscureText: true,
                       ),
                       SizedBox(
                         height: 16,
